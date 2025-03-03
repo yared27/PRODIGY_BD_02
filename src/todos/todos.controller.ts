@@ -18,8 +18,5 @@ export class TodosController{
   findOne(@Param('id') id:number){
     return this.todosService.findOne(id);
   }
-  @Put()
-  findOne(){
-    
-  }
+ 
 }
