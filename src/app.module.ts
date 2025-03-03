@@ -18,7 +18,7 @@ import { join } from 'path';
       password: 'Yared(2723)', // Change this to your MySQL password
       database: 'crud_app', // Change this to your database name
       entities: [join(process.cwd(),'dist/**/*.entity.js') ],
-      synchronize: true, // S
+      synchronize: true, 
         
 
   }),
