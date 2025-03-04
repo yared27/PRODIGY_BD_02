@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn} from "typeorm";
-@Entity({name:'user'})
+@Entity({name:'User'})
 export class Todo{
      @PrimaryGeneratedColumn()
      id:number;

@@ -9,17 +9,22 @@ import { TodosModule } from './todos/todos.module';
 import { Todo } from './todos/todos.entity';
 import { join } from 'path';
 @Module({
-  imports: [
-    TypeOrmModule.forRoot({
+  imports: [ ConfigModule.forRoot({isGlobal:true}),
+    TypeOrmModule.forRootAsync({
+      imports:[ConfigModule],
+      inject:[ConfigService],
+      useFactory:(configService:ConfigService)=>({
       type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'crud_app', // Change this to your MySQL username
-      password: 'Yared(2723)', // Change this to your MySQL password
-      database: 'crud_app', // Change this to your database name
+      host: configService.get<string>('HOST'),
+      port: configService.get<number>('PORT'),
+      username: configService.get<string>('USERNAME'), 
+      password: configService.get<string>('DB_PASSWORD'),
+      database: configService.get<string>('DB_NAME'), 
       entities: [join(process.cwd(),'dist/**/*.entity.js') ],
-      synchronize: true, 
-        
+      synchronize: false, 
+      migrations:['dist/migrations/*.js'],
+      migrationsRun:true,
+    }),
 
   }),
   TodosModule

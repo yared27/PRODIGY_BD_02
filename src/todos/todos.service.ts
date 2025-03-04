@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable, NotFoundException, Param } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Todo } from "./todos.entity";
 import { Repository } from "typeorm";
@@ -6,25 +6,33 @@ import { CreateTodoDto } from "./dtos/create-todo.dto";
 import { UpdateTodoDto } from "./dtos/update-todo.dto";
 @Injectable()
 export class TodosService{
-    // constructor(@InjectRepository(Todo) private readonly todoRepository:Repository<Todo>,){}
-    private todos=new Map<number,{name:string;email:string;age:number}>();
-    private idCounter=1;
-    create(dto:CreateTodoDto){
-        this.todos.set(this.idCounter,{name:dto.name,email:dto.email,age:dto.age});
-        return {id:this.idCounter++,...dto};
+  create(dto: CreateTodoDto): Todo | PromiseLike<Todo> {
+    throw new Error("Method not implemented.");
+  }
+    userRepository: Repository<Todo>;
+    constructor(@InjectRepository(Todo) private readonly todoRepository:Repository<Todo>,){}
+
+    async createUser(dto:CreateTodoDto ):Promise<Todo>{
+           const todo =this.todoRepository.create(dto)
+           return this.userRepository.save(todo);
+
     }
-    findAll(){
-        return Array.from(this.todos.entries()).map(([id,todo])=>({id,...todo}));
+    //Get all user
+    async findAll():Promise<Todo[]>{
+        return this.todoRepository.find();
     }
-    findOne(id:number){
-        const todo=this.todos.get(id);
+
+     //get one user
+    async findOne(id:number):Promise<Todo>{
+        const todo= await this.todoRepository.findOne({where:{id}});
         if(!todo){
             throw new HttpException(`Todo with ID ${id} not found`,HttpStatus.NOT_FOUND);
         }
-        return {id,...todo};
+        return todo;
     }
-    update(id:number,dto:UpdateTodoDto){
-        const todo=this.todos.get(id)
+     //update user
+     async update(id:number,dto:UpdateTodoDto):Promise<Todo>{
+        const todo=await this.todoRepository.findOne({where:{id}});
         if(!todo){
             console.log(todo)
             throw new NotFoundException(`person with this ID ${id} not found`);
@@ -38,16 +46,16 @@ export class TodosService{
         if(dto.age){
             todo.age=dto.age
         }
-        this.todos.set(id,todo);
-        return {id,...todo};
-    }
-    delete(id:number){
-        const todo=this.todos.get(id);
+        await this.todoRepository.save(todo);
+        return todo;
+     }
+   //remove user
+   async remove(id:number):Promise<void>{
+        const todo=this.todoRepository.findOne({where:{id}});
         if(!todo){
             throw new NotFoundException(`You can't delete already unexisting user with this ID ${id}  `)
         }
-        this.todos.delete(id);
-        return {message:`A user with this ID ${id} deleted successfully`};
+        await this.todoRepository.delete(id);
 
     }
 }
